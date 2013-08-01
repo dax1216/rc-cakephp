@@ -34,11 +34,11 @@ App::uses('Controller', 'Controller');
 class AppController extends Controller {
     public $components = array( 'Auth' => array(
                                     'loginAction' => array(
-                                        'controller' => 'users',
+                                        'controller' => 'account',
                                         'action' => 'login',
                                         'plugin' => 'users'
                                     ),
-                                    'authError' => 'Did you really think you are allowed to see that?',
+                                    'authError' => 'Invalid username and/or password entered.',
                                     'authenticate' => array(
                                         'Form' => array(
                                             'fields' => array('username' => 'email')
