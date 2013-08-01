@@ -12,7 +12,7 @@
 		echo $this->Html->meta('icon');
         echo $this->fetch('meta');
 
-		echo $this->Html->css(array('bootstrap.min', 'bootstrap-responsive.min'));
+		echo $this->Html->css(array('bootstrap.min', 'bootstrap-responsive.min', 'style'));
 		
 		echo $this->fetch('css');
 
@@ -42,6 +42,10 @@
     </div>
 
     <div class="container">
+    <?php
+        echo $this->Session->flash('auth');
+        echo $this->Session->flash();
+    ?>
 	<?php echo $content_for_layout ?>
 
       <hr>
