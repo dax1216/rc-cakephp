@@ -32,20 +32,21 @@ App::uses('Controller', 'Controller');
  * @link		http://book.cakephp.org/2.0/en/controllers.html#the-app-controller
  */
 class AppController extends Controller {
-    public $components = array( 'Auth' => array(
-                                    'loginAction' => array(
-                                        'controller' => 'account',
-                                        'action' => 'login',
-                                        'plugin' => 'users'
+    public $components = array( 'Session',
+                                'Auth' => array(
+                                    'authorize' => array(
+                                            'Actions' => array('actionPath' => 'controllers')
                                     ),
-                                    'authError' => 'Invalid username and/or password entered.',
-                                    'authenticate' => array(
-                                        'Form' => array(
-                                            'fields' => array('username' => 'email')
-                                        )
-                                    )
+                                    'loginAction' => array('controller' => 'account','action' => 'login'),
+                                    'authError' => 'Invalid username and/or password entered.',                                    
+                                    'loginRedirect' => array('controller' => 'home', 'action' => 'index'),
+                                    'logoutRedirect' => array('controller' => 'home', 'action' => 'index'),
                                 ),
-                                'Acl', 'DebugKit.Toolbar', 'Session');
+                                'DebugKit.Toolbar');
 
     public $helpers = array('Session', 'Form', 'Html', 'Number', 'Time');
+
+    public function beforeFilter() {
+        $this->Auth->allow();
+    }
 }

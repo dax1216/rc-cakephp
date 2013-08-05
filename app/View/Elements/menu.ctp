@@ -20,6 +20,6 @@
                 <li><a href="/account/login">Sign In</a></li>
                 <li><a href="/account/register">Register</a></li>
                 <li><a href="/account/register">My Profile</a></li>
-                <li><a href="/account/register">Logout</a></li>
+                <li><a href="/account/logout">Logout</a></li>
             </ul>
           </div><!--/.nav-collapse -->

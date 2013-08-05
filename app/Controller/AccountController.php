@@ -6,6 +6,12 @@ class AccountController extends AppController {
     public $uses = array('User');
     public $components = array('Recaptcha.Recaptcha', 'Email');
 
+    public function beforeFilter() {
+        parent::beforeFilter();
+
+        $this->Auth->allow();
+    }
+
     /**
      * User registration
      */
@@ -86,7 +92,14 @@ class AccountController extends AppController {
     }
 
     public function login() {
-
+        if ($this->request->is('post')) {
+            if ($this->Auth->login()) {
+                $this->Session->setFlash('Successfully logged in!', 'default', array('class' => 'alert alert-success'));
+                $this->redirect($this->Auth->loginRedirect);
+            } else {
+                $this->Session->setFlash($this->Auth->authError, 'default', array('class' => 'alert alert-error'));
+            }
+        }
     }
     
     /**
