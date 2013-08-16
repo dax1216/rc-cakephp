@@ -6,4 +6,6 @@
       <input type="checkbox" value="remember-me"> Remember me
     </label>
     <button class="btn btn-large btn-primary" type="submit">Sign in</button>
+    <br /><br />
+    <p><a href="/account/forgot_password/">Forgot your password?</a></p>
   </form>

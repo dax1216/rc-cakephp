@@ -1,3 +1,4 @@
+<h2><?php echo __('Roles');?></h2>
 <div class="groups form">
 <?php echo $this->Form->create('Role');?>
 	<fieldset>
@@ -6,5 +7,6 @@
 		echo $this->Form->input('name');
 	?>
 	</fieldset>
-<?php echo $this->Form->end(__('Submit'));?>
+<?php   echo $this->Form->submit( __('Submit'), array('class' => 'btn btn-primary')) ?>
+<?php   echo $this->Form->end();?>
 </div>

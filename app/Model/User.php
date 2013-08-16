@@ -23,30 +23,25 @@ class User extends AppModel {
 
     public $name = 'User';
     
-    //public $actsAs = array('Acl' => array('type' => 'requester', 'enabled' => false));
+    public $actsAs = array('Acl' => array('type' => 'requester'));
+
+    public $virtualFields = array('name' => 'CONCAT(User.first_name, " ", User.last_name)');
 
     public $validate = array(
         'first_name' => array(
             'notempty' => array(
 			'rule' => array('notempty'),
 			'message' => 'First Name is required',
-			'allowEmpty' => false,
-			'required' => false,
-			'last' => false, // Stop validation after this rule
-			'on' => 'create', // Limit validation to 'create' or 'update' operations
+			'allowEmpty' => false,			
 			),
         ),
         'last_name' => array(
             'notempty' => array(
 			'rule' => array('notempty'),
 			'message' => 'Last Name is required',
-			'allowEmpty' => false,
-			'required' => false,
-			'last' => false, // Stop validation after this rule
-			'on' => 'create', // Limit validation to 'create' or 'update' operations
-			),
-        ),
-        
+			'allowEmpty' => false,			
+			)
+        ),        
         'email_address' => array(
             'email_address' => array(
                         'rule'      => 'email',
@@ -83,16 +78,27 @@ class User extends AppModel {
                 'rule'      => 'notEmpty',
                 'message'   => 'Password Confirm is required',
                 'last' => false, // Stop validation after this rule
-                //'on' => 'create', // Limit validation to 'create' or 'update' operations
+                'on' => 'create', // Limit validation to 'create' or 'update' operations
             ),
             'identicalFieldValues' => array(
                     'rule' => array('identicalFieldValues', 'password_confirm' ),
                     'message' => 'The password you entered does not match',
+                    'on' => 'create'
                  )
         ),
         
     );
-    
+
+    public $belongsTo = array(
+        'Role' => array(
+			'className' => 'Role',
+			'foreignKey' => 'role_id',
+			'conditions' => '',
+			'fields' => '',
+			'order' => ''
+		)
+    );
+
     function identicalFieldValues($field=array(), $compare_field=null) 
     {
         foreach($field as $key => $value){
@@ -118,4 +124,23 @@ class User extends AppModel {
 	}     
     
 
+    public function parentNode() {
+        if (!$this->id && empty($this->data)) {
+            return null;
+        }
+        if (isset($this->data['User']['role_id'])) {
+            $role_id = $this->data['User']['role_id'];
+        } else {
+            $role_id = $this->field('role_id');
+        }
+        if (!$role_id) {
+            return null;
+        } else {
+            return array('Role' => array('role_id' => $role_id));
+        }
+    }
+
+    public function bindNode($user) {
+        return array('model' => 'Role', 'foreign_key' => $user['User']['role_id']);
+    }
 }

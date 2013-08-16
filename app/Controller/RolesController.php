@@ -10,8 +10,9 @@ class RolesController extends AppController {
  * @return void
  */
 	public function index() {
-		$this->Role->recursive = 0;
-		$this->set('roles', $this->paginate);
+		//$this->Role->recursive = 0;
+        
+		$this->set('roles', $this->paginate('Role'));
 	}
 
 /**
@@ -37,10 +38,10 @@ class RolesController extends AppController {
 		if ($this->request->is('post')) {
 			$this->Role->create();
 			if ($this->Role->save($this->request->data)) {
-				$this->Session->setFlash(__('The role has been saved'));
+				$this->Session->setFlash(__('The role has been saved'), 'default', array('class' => 'alert alert-success'));
 				$this->redirect(array('action' => 'index'));
 			} else {
-				$this->Session->setFlash(__('The role could not be saved. Please, try again.'));
+				$this->Session->setFlash(__('The role could not be saved. Please, try again.'), 'default', array('class' => 'alert alert-error'));
 			}
 		}
 	}
@@ -58,10 +59,10 @@ class RolesController extends AppController {
 		}
 		if ($this->request->is('post') || $this->request->is('put')) {
 			if ($this->Role->save($this->request->data)) {
-				$this->Session->setFlash(__('The role has been saved'));
+				$this->Session->setFlash(__('The role has been saved'), 'default', array('class' => 'alert alert-success'));
 				$this->redirect(array('action' => 'index'));
 			} else {
-				$this->Session->setFlash(__('The role could not be saved. Please, try again.'));
+				$this->Session->setFlash(__('The role could not be saved. Please, try again.'), 'default', array('class' => 'alert alert-success'));
 			}
 		} else {
 			$this->request->data = $this->Role->read(null, $id);
@@ -80,13 +81,13 @@ class RolesController extends AppController {
 		}
 		$this->Team->id = $id;
 		if (!$this->Team->exists()) {
-			throw new NotFoundException(__('Invalid team'));
+			throw new NotFoundException(__('Invalid role'));
 		}
 		if ($this->Team->delete()) {
-			$this->Session->setFlash(__('Team deleted'));
+			$this->Session->setFlash(__('Role deleted'));
 			$this->redirect(array('action' => 'index'));
 		}
-		$this->Session->setFlash(__('Team was not deleted'));
+		$this->Session->setFlash(__('Role was not deleted'));
 		$this->redirect(array('action' => 'index'));
 	}
 

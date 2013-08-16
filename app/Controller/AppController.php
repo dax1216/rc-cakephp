@@ -42,7 +42,8 @@ class AppController extends Controller {
                                     'loginRedirect' => array('controller' => 'home', 'action' => 'index'),
                                     'logoutRedirect' => array('controller' => 'home', 'action' => 'index'),
                                 ),
-                                'DebugKit.Toolbar');
+                                'DebugKit.Toolbar',
+                                'RequestHandler');
 
     public $helpers = array('Session', 'Form', 'Html', 'Number', 'Time');
 

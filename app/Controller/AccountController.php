@@ -49,7 +49,7 @@ class AccountController extends AppController {
 
         if(empty($user)) {
             $this->Session->setFlash('Invalid user and key entered.', 'default', array('class' => 'alert alert-error'));
-            $this->redirect('/myaccount/login');
+            $this->redirect('/account/login');
         } else {
             if($user['User']['is_email_confirmed'] == 1) {
                 $this->Session->setFlash('User already activated. Please login to continue.', 'default', array('class' => 'alert alert-error'));
@@ -150,6 +150,72 @@ class AccountController extends AppController {
         $this->Session->destroy();
 
         $this->redirect($this->Auth->logout());
+    }
+
+    public function forgot_password() {
+        if($this->request->is('post') || $this->request->is('put')) {
+            //Bypass email confirm field
+            $this->request->data['User']['email_address_confirm'] = $this->request->data['User']['email_address'];
+
+            $this->User->set($this->request->data);
+
+            if($this->User->validates(array('first_name', 'last_name', 'email_address'))) {
+                $user_email = $this->request->data['User']['email_address'];
+
+                $user = $this->User->find('first', array('conditions' => array('User.email_address' => $user_email,
+                                                                               'User.first_name' => $this->request->data['User']['first_name'],
+                                                                               'User.last_name' => $this->request->data['User']['last_name']),
+                                                         'recursive' => -1
+                                                        ));
+                if(!empty($user)) {
+                    $reply_to_address = Configure::read('WhaleDefaults.reply_to_address');
+                    $reply_to_name = Configure::read('WhaleDefaults.reply_to_name');
+
+                    $email = new CakeEmail();
+                    $email->from(array($reply_to_address => $reply_to_name));
+                    $email->to($user['User']['email_address']);
+                    $email->helpers(array('Html'));
+
+                    $email->subject('WhiteWhaleCards.com Account Recovery');
+
+                    if($this->request->data['access_problem'] == 'forgot_password') {
+                        $email->template('forgot_password')
+                              ->emailFormat('both');
+
+                        $temp_password = $this->_generateRandomString(8);
+
+                        $this->User->id = $user['User']['user_id'];
+
+                        $this->User->set('password', $temp_password);
+
+                        $this->User->save();
+                        $email->viewVars(array('user' => $user, 'temp_password' => $temp_password));
+                    } else {
+                        $email->template('forgot_username')
+                              ->emailFormat('both');
+
+                        $email->viewVars(array('user' => $user));
+                    }
+
+                    $email->send();
+
+                    $this->Session->setFlash('Account recovery email sent.', 'default', array('class' => 'alert alert-success'));
+                    $this->redirect('/users/login');
+                } else {
+                    $this->Session->setFlash(__('The account data you entered does not exist in our records.'), 'default', array('class' => 'alert alert-error'));
+                    $this->redirect('forgot_password');
+                }
+            }
+        }
+    }
+
+    private function _generateRandomString($length = 10) {
+        $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        $randomString = '';
+        for ($i = 0; $i < $length; $i++) {
+            $randomString .= $characters[rand(0, strlen($characters) - 1)];
+        }
+        return $randomString;
     }
 }
 ?>

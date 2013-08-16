@@ -71,6 +71,7 @@ Cache::config('default', array('engine' => 'File'));
  * CakePlugin::load('DebugKit'); //Loads a single plugin named DebugKit
  *
  */
+CakePlugin::load('AclExtras');
 CakePlugin::load('DebugKit');
 CakePlugin::load('Recaptcha', array('bootstrap' => true));
 /**
@@ -108,3 +109,5 @@ CakeLog::config('error', array(
 	'types' => array('warning', 'error', 'critical', 'alert', 'emergency'),
 	'file' => 'error',
 ));
+
+CakePlugin::load('Blog', array('bootstrap' => false, 'routes' => false));

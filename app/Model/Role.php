@@ -27,5 +27,20 @@ class Role extends AppModel {
         )
     );
 
+    public $hasMany = array(
+        'User' => array(
+			'className' => 'User',
+			'foreignKey' => 'role_id',
+			'conditions' => '',
+			'fields' => '',
+			'order' => ''
+		)
+    );
 
+    public $actsAs = array('Acl' => array('type' => 'requester'));
+
+    public function parentNode() {
+        return null;
+    }
+    
 }
