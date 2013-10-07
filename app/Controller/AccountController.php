@@ -7,7 +7,7 @@ class AccountController extends AppController {
     public $components = array('Recaptcha.Recaptcha', 'Email');
 
     public function beforeFilter() {
-        parent::beforeFilter();
+        //parent::beforeFilter();
 
         $this->Auth->allow();
     }
@@ -17,10 +17,12 @@ class AccountController extends AppController {
      */
     public function register() {
         if($this->request->is('post')) {
+            
             if ($this->Recaptcha->verify()) {
                 $this->User->create();
 
-                $this->request->data['User']['role_id'] = 1;
+                $this->request->data['User']['role_id'] = Configure::read('site_config.role_user'); //temporary assignment
+                $this->request->data['User']['is_active'] = true; //temporary assignment
                 $this->request->data['User']['confirmation_key'] = md5(serialize($this->request->data));
 
                 if($this->User->save($this->request->data)) {
@@ -73,23 +75,30 @@ class AccountController extends AppController {
      * User profile page
      */
     public function index() {
+        if(!$this->Access->check($this->params['controller'] . '/'. $this->params['action'])) {
+            $this->Session->setFlash('Access denied.', 'default', array('class' => 'alert alert-error'));
+            $this->redirect('/');
+        }
+        
         $this->User->id = $user_id = $this->Auth->user('user_id');
-
-        if ($this->Auth->user() && $this->request->is('post')) {
-            if ($this->User->save($this->request->data)) {
-                $this->Session->write('Auth', $this->User->read(null, $user_id));
-
-                $this->Session->setFlash(__('Account details saved'), 'default', array('class' => 'alert alert-success'));
-                $this->redirect(array('action' => 'index'));
+        
+        if ($this->request->is('post') || $this->request->is('put')){            
+            if($this->request->data('change_password') == '1') {
+                $this->_change_password();
+                
             } else {
-                $this->Session->setFlash(__('Error in saving account details. Please, try again.'), 'default', array('class' => 'alert alert-error'));
-                $user_data = $this->request->data;
+                if ($this->User->save($this->request->data)) {
+                    $this->Session->write('Auth', $this->User->read(null, $user_id));
+
+                    $this->Session->setFlash(__('Account details saved'), 'default', array('class' => 'alert alert-success'));
+                    $this->redirect(array('action' => 'index'));
+                } else {
+                    $this->Session->setFlash(__('Error in saving account details. Please, try again.'), 'default', array('class' => 'alert alert-error'));                    
+                }
             }
         } else {
             $this->request->data = $user_data = $this->User->find('first', array('conditions' => array('User.user_id' => $user_id), 'recursive' => -1));
-        }
-
-        $this->set('user_data', $user_data);
+        }        
     }
 
     public function login() {
@@ -107,44 +116,39 @@ class AccountController extends AppController {
     /**
      * Change user password
      */
-    public function change_password() {
+    private function _change_password() {
         $user_id = $this->Auth->user('user_id');
+        
+        $current_password = AuthComponent::password($this->request->data['User']['current_password']);
 
-        $this->User->id = $user_id;
+        $user = $this->User->find('first', array('conditions' => array('User.user_id' => $user_id), 'recursive' => -1));
 
-        if (!$this->User->exists()) {
-            throw new NotFoundException(__('Invalid user'));
+        if($user['User']['password'] == AuthComponent::password($this->request->data['User']['password'])) {
+            $this->Session->setFlash(__('The new password you entered is the same with the current password'), 'default', array('class' => 'alert alert-error'));
+            $this->redirect('/account/index#change-password');
         }
 
-        if ($this->request->is('post')) {
-            $current_password = AuthComponent::password($this->request->data['User']['current_password']);
+        if($user['User']['password'] != $current_password) {
+            $this->Session->setFlash(__('The current password you entered is not valid'), 'default', array('class' => 'alert alert-error'));
+            $this->redirect('/account/index#change-password');
+        }
 
-            $user = $this->User->find('first', array('conditions' => array('User.user_id' => $user_id), 'recursive' => -1));
+        $this->request->data['User']['updated'] = date('Y-m-d H:i:s');
+        unset($this->request->data['User']['current_password']);
 
-            if($user['User']['password'] == AuthComponent::password($this->request->data['User']['password'])) {
-                $this->Session->setFlash(__('The new password you entered is the same with the current password'), 'default', array('class' => 'alert alert-error'));
-                $this->redirect(array('action' => 'change_password'));
-            }
+        $this->User->set($this->request->data);
 
-            if($user['User']['password'] != $current_password) {
-                $this->Session->setFlash(__('The current password you entered is not valid'), 'default', array('class' => 'alert alert-error'));
-                $this->redirect(array('action' => 'change_password'));
-            }
+        if ($this->User->validates(array('fieldList' => array('password', 'password_confirm')))) {
 
-            $this->request->data['User']['updated'] = date('Y-m-d H:i:s');
-            unset($this->request->data['User']['current_password']);
+            $this->User->save();
 
-            $this->User->set($this->request->data);
+            $this->Session->setFlash(__('The user password successfully updated'), 'default', array('class' => 'alert alert-success'));
 
-            if ($this->User->validates(array('fieldList' => array('password', 'password_confirm')))) {
+            $this->redirect('/account/index#change-password');
+        } else {
+            $this->Session->setFlash(__('The new password could not be saved. Please try again.'), 'default', array('class' => 'alert alert-error'));
 
-                $this->User->save();
-
-                $this->Session->setFlash(__('The user password successfully updated'), 'default', array('class' => 'alert alert-success'));
-                $this->redirect(array('action' => 'index'));
-            } else {
-                $this->Session->setFlash(__('The new password could not be saved. Please try again.'), 'default', array('class' => 'alert alert-error'));
-            }
+            $this->request->data = $user;
         }
     }
 

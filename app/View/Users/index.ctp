@@ -9,6 +9,7 @@
                 <th>Role</th>
                 <th><?php echo $this->Paginator->sort('created');?></th>
                 <th><?php echo $this->Paginator->sort('modified');?></th>
+                <th>Is Active</th>
                 <th class="actions"><?php echo __('Actions');?></th>
             </tr>
         </thead>
@@ -23,6 +24,7 @@
         <td><?php echo h($user['Role']['name']); ?>&nbsp;</td>
 		<td><?php echo h($user['User']['created']); ?>&nbsp;</td>
 		<td><?php echo h($user['User']['updated']); ?>&nbsp;</td>
+        <td><?php echo ($user['User']['is_active']) ? 'Yes' : 'No' ?></td>
 		<td class="actions">
 			<?php echo $this->Html->link(__('View'), array('action' => 'view', $user['User']['user_id'])); ?>
 			<?php echo $this->Html->link(__('Edit'), array('action' => 'edit', $user['User']['user_id'])); ?>

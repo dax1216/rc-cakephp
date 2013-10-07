@@ -35,10 +35,11 @@ class AppController extends Controller {
     public $components = array( 'Session',
                                 'Acl',
                                 'Auth' => array(
-                                    'loginAction' => array('controller' => 'account','action' => 'login'),
+                                    'loginAction' => array('controller' => 'account', 'action' => 'login'),
                                     'authenticate' => array(
                                         'Form' => array(
-                                            'fields' => array('username' => 'email_address', 'password' => 'password')
+                                            'fields' => array('username' => 'email_address', 'password' => 'password'),
+                                            'scope' => array('User.is_active' => 1)
                                         )
                                     ),
                                     'authorize' => array(
@@ -52,9 +53,14 @@ class AppController extends Controller {
                                 'Access',
                                 'RequestHandler');
 
-    public $helpers = array('Session', 'Form', 'Html', 'Number', 'Time');
+    public $helpers = array('Session', 'Form', 'Html', 'Number', 'Time', 'Geography');
 
     public function beforeFilter() {
+        $this->Auth->allow();
         
+        if(!$this->Access->check($this->params['controller'] . '/'. $this->params['action'])) {
+            $this->Session->setFlash('Access denied.', 'default', array('class' => 'alert alert-error'));
+            $this->redirect('/');
+        }
     }
 }

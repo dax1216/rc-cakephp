@@ -77,13 +77,13 @@ class User extends AppModel {
             'empty' => array(
                 'rule'      => 'notEmpty',
                 'message'   => 'Password Confirm is required',
-                'last' => false, // Stop validation after this rule
-                'on' => 'create', // Limit validation to 'create' or 'update' operations
+                //'last' => false, // Stop validation after this rule
+                //'on' => 'create', // Limit validation to 'create' or 'update' operations
             ),
             'identicalFieldValues' => array(
-                    'rule' => array('identicalFieldValues', 'password_confirm' ),
+                    'rule' => array('identicalFieldValues', 'password' ),
                     'message' => 'The password you entered does not match',
-                    'on' => 'create'
+                    //'on' => 'create'
                  )
         ),
         
