@@ -1,11 +1,8 @@
- <form class="form-signin">
+<?php echo $this->Form->create('User', array('class' => 'form-signin'));?>
     <h2 class="form-signin-heading">Please sign in</h2>
-    <input type="text" class="input-block-level" placeholder="Email address">
-    <input type="password" class="input-block-level" placeholder="Password">
-    <label class="checkbox">
-      <input type="checkbox" value="remember-me"> Remember me
-    </label>
+    <?php echo $this->Form->input('email_address', array('label' => false, 'class' => 'input-block-level', 'placeholder' => 'Email address')); ?>
+    <?php echo $this->Form->input('password', array('label' => false, 'class' => 'input-block-level', 'placeholder' => 'Password')); ?>
     <button class="btn btn-large btn-primary" type="submit">Sign in</button>
     <br /><br />
     <p><a href="/account/forgot_password/">Forgot your password?</a></p>
-  </form>
+<?php echo $this->Form->end();?>

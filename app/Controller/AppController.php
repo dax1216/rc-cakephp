@@ -33,21 +33,28 @@ App::uses('Controller', 'Controller');
  */
 class AppController extends Controller {
     public $components = array( 'Session',
+                                'Acl',
                                 'Auth' => array(
+                                    'loginAction' => array('controller' => 'account','action' => 'login'),
+                                    'authenticate' => array(
+                                        'Form' => array(
+                                            'fields' => array('username' => 'email_address', 'password' => 'password')
+                                        )
+                                    ),
                                     'authorize' => array(
                                             'Actions' => array('actionPath' => 'controllers')
-                                    ),
-                                    'loginAction' => array('controller' => 'account','action' => 'login'),
+                                    ),                                    
                                     'authError' => 'Invalid username and/or password entered.',                                    
                                     'loginRedirect' => array('controller' => 'home', 'action' => 'index'),
-                                    'logoutRedirect' => array('controller' => 'home', 'action' => 'index'),
-                                ),
-                                'DebugKit.Toolbar',
+                                    'logoutRedirect' => array('controller' => 'account','action' => 'login'),
+                                ),                                
+                                'DebugKit.Toolbar' => array('panels' => array('history' => false)),
+                                'Access',
                                 'RequestHandler');
 
     public $helpers = array('Session', 'Form', 'Html', 'Number', 'Time');
 
     public function beforeFilter() {
-        $this->Auth->allow();
+        
     }
 }

@@ -37,6 +37,9 @@ class UsersController extends AppController {
             $this->User->validator()->remove('email_address', 'identicalFieldValues');
 
 			$this->User->create();
+
+            $this->request->data['User']['is_email_confirmed'] = true;
+            
 			if ($this->User->save($this->request->data)) {
 				$this->Session->setFlash(__('The user has been saved'), 'default', array('class' => 'alert alert-success'));
 				$this->redirect(array('action' => 'index'));

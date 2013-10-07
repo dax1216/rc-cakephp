@@ -20,14 +20,15 @@ class AccountController extends AppController {
             if ($this->Recaptcha->verify()) {
                 $this->User->create();
 
+                $this->request->data['User']['role_id'] = 1;
                 $this->request->data['User']['confirmation_key'] = md5(serialize($this->request->data));
 
                 if($this->User->save($this->request->data)) {
                     //$this->Email->send();
 
-                    $this->Session->setFlash('Registration successful. Please check your email and confirm your registration to activate your account.', 'default', array('class' =>'alert alert-success'));
-
-                    $this->redirect('/account/register');
+                    //$this->Session->setFlash('Registration successful. Please check your email and confirm your registration to activate your account.', 'default', array('class' =>'alert alert-success'));
+                    $this->Session->setFlash('Registration successful. Welcome!', 'default', array('class' =>'alert alert-success'));
+                    $this->redirect('/');
                 } else {
                     $this->Session->setFlash('Error in registration process.', 'default', array('class' =>'alert alert-error'));
                 }
@@ -93,7 +94,8 @@ class AccountController extends AppController {
 
     public function login() {
         if ($this->request->is('post')) {
-            if ($this->Auth->login()) {
+            
+            if ($this->Auth->login()) {                
                 $this->Session->setFlash('Successfully logged in!', 'default', array('class' => 'alert alert-success'));
                 $this->redirect($this->Auth->loginRedirect);
             } else {
@@ -176,7 +178,7 @@ class AccountController extends AppController {
                     $email->to($user['User']['email_address']);
                     $email->helpers(array('Html'));
 
-                    $email->subject('WhiteWhaleCards.com Account Recovery');
+                    $email->subject('Site.com Account Recovery');
 
                     if($this->request->data['access_problem'] == 'forgot_password') {
                         $email->template('forgot_password')

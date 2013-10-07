@@ -38,6 +38,13 @@ class RolesController extends AppController {
 		if ($this->request->is('post')) {
 			$this->Role->create();
 			if ($this->Role->save($this->request->data)) {
+                $role = $this->Role;
+
+                $this->Acl->deny($role, 'controllers');
+
+                $this->Acl->allow($role, 'controllers/Account');
+                $this->Acl->allow($role, 'controllers/Home');
+
 				$this->Session->setFlash(__('The role has been saved'), 'default', array('class' => 'alert alert-success'));
 				$this->redirect(array('action' => 'index'));
 			} else {
